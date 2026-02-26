@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .section-heading {
+    @apply text-[0.75rem] font-medium uppercase tracking-[0.1em] text-muted mt-12 mb-4 pb-2 border-b border-border;
+  }
+}
+
+/* Bullet dashes for list items — pseudo-element can't be done in Tailwind utilities */
+.entry-list li {
+  position: relative;
+  padding-left: 1rem;
+}
+
+.entry-list li::before {
+  content: '–';
+  position: absolute;
+  left: 0;
+  color: #888;
+}
