@@ -1,9 +1,16 @@
+import VoiceBadge from './VoiceBadge'
+
 export default function Home() {
   return (
     <>
       {/* Intro */}
       <section>
-        <h1 className="text-2xl font-semibold tracking-tight mb-1">Spencer Reyka</h1>
+        <div className="flex items-center gap-3 flex-wrap mb-1">
+          <h1 className="text-2xl font-semibold tracking-tight">Spencer Reyka</h1>
+          {/* Renders only when actually in voice — absent otherwise, including when the
+              backend cannot be reached. See app/VoiceBadge.tsx. */}
+          <VoiceBadge />
+        </div>
         <p className="text-muted text-[0.9rem] mb-4">AI Team Lead · Los Angeles, CA</p>
         <p className="text-[#bbb] text-[0.95rem] max-w-[520px] mb-3">
           I build backend systems and AI tooling.

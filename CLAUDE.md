@@ -15,6 +15,8 @@ Spencer Reyka's personal site. Migrated from plain HTML on GitHub Pages to Next.
 - `app/page.tsx` — entire site content (edit this to update the page)
 - `app/admin/page.tsx` — admin dashboard, server-side auth via `auth()`
 - `app/api/ghchart/route.ts` — CORS proxy for github contribution chart
+- `app/api/voice/route.ts` — server-side proxy to backbone-api (keeps the backbone hostname off the client and lets Vercel cache it)
+- `app/VoiceBadge.tsx` — "in voice" pill on the header, polls `/api/voice` every 15s
 - `auth.ts` — Google provider config, email allowlist (spencer.reyka@gmail.com only)
 - `middleware.ts` — protects /admin routes
 
@@ -33,7 +35,14 @@ Colors defined in `tailwind.config.ts` and mirrored as CSS vars in `globals.css`
 AUTH_SECRET           # generate with: npx auth secret
 GOOGLE_CLIENT_ID      # from Google Cloud Console
 GOOGLE_CLIENT_SECRET  # from Google Cloud Console
+BACKBONE_API_URL      # e.g. https://backbone.spencerreyka.com — optional
 ```
+
+`BACKBONE_API_URL` is optional. Unset, `/api/voice` reports `known: false` and the badge
+renders nothing, so the site works exactly as before. The badge deliberately distinguishes
+"not in voice" from "cannot tell" and shows nothing for the second — the collector only runs
+part of the day, so a badge that rendered unreachable-as-offline would be confidently wrong
+for hours at a time.
 
 ## Local dev
 
