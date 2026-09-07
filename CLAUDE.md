@@ -15,8 +15,9 @@ Spencer Reyka's personal site. Migrated from plain HTML on GitHub Pages to Next.
 - `app/page.tsx` — entire site content (edit this to update the page)
 - `app/admin/page.tsx` — admin dashboard, server-side auth via `auth()`
 - `app/api/ghchart/route.ts` — CORS proxy for github contribution chart
-- `app/api/voice/route.ts` — server-side proxy to backbone-api (keeps the backbone hostname off the client and lets Vercel cache it)
-- `app/VoiceBadge.tsx` — "in voice" pill on the header, polls `/api/voice` every 15s
+- `app/api/voice/route.ts` — server-side proxy to backbone-api (keeps the backbone hostname off the client, and lets the platform cache it)
+- `app/VoiceStatus.tsx` — the "Now" section; polls `/api/voice` every 15s
+- `Dockerfile` — multi-stage, `output: 'standalone'`, runs as the non-root `node` user
 - `auth.ts` — Google provider config, email allowlist (spencer.reyka@gmail.com only)
 - `middleware.ts` — protects /admin routes
 

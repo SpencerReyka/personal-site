@@ -12,7 +12,7 @@ export async function GET() {
   if (!BACKBONE_API_URL) {
     // Unconfigured is "unknown", not "offline" — the badge renders nothing rather than
     // asserting something false. Same reason backbone-api answers 503 instead of {online:false}.
-    return Response.json({ online: false, since: null, known: false })
+    return Response.json({ online: false, since: null, lastSeen: null, known: false })
   }
 
   try {
@@ -21,16 +21,20 @@ export async function GET() {
       next: { revalidate: 10 },
     })
     if (!res.ok) {
-      return Response.json({ online: false, since: null, known: false })
+      return Response.json({ online: false, since: null, lastSeen: null, known: false })
     }
-    const data = (await res.json()) as { online: boolean; since: string | null }
+    const data = (await res.json()) as {
+      online: boolean
+      since: string | null
+      lastSeen: string | null
+    }
     return Response.json({ ...data, known: true }, {
       headers: { 'Cache-Control': 'public, s-maxage=10, stale-while-revalidate=30' },
     })
   } catch {
-    // A timeout or an unreachable VM is also "unknown". The collector only runs part of the
-    // day, so the badge has to be honest about the difference between "not in voice" and
-    // "cannot tell" — otherwise it is confidently wrong for the hours nothing is running.
-    return Response.json({ online: false, since: null, known: false })
+    // A timeout or an unreachable VM is "unknown", not "offline". The section renders nothing
+    // rather than asserting something false — the two are different answers and only one of
+    // them is true when the infrastructure is simply unreachable.
+    return Response.json({ online: false, since: null, lastSeen: null, known: false })
   }
 }

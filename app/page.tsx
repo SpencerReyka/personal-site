@@ -1,16 +1,11 @@
-import VoiceBadge from './VoiceBadge'
+import VoiceStatus from './VoiceStatus'
 
 export default function Home() {
   return (
     <>
       {/* Intro */}
       <section>
-        <div className="flex items-center gap-3 flex-wrap mb-1">
-          <h1 className="text-2xl font-semibold tracking-tight">Spencer Reyka</h1>
-          {/* Renders only when actually in voice — absent otherwise, including when the
-              backend cannot be reached. See app/VoiceBadge.tsx. */}
-          <VoiceBadge />
-        </div>
+        <h1 className="text-2xl font-semibold tracking-tight mb-1">Spencer Reyka</h1>
         <p className="text-muted text-[0.9rem] mb-4">AI Team Lead · Los Angeles, CA</p>
         <p className="text-[#bbb] text-[0.95rem] max-w-[520px] mb-3">
           I build backend systems and AI tooling.
@@ -25,6 +20,10 @@ export default function Home() {
       </section>
 
       {/* Links */}
+      {/* Live status, fed by my own infrastructure. Hidden entirely when it cannot be
+          determined rather than asserting something false. */}
+      <VoiceStatus />
+
       <h2 className="section-heading">Links</h2>
       <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2">
         <a href="https://github.com/SpencerReyka" target="_blank" rel="noopener" className="text-accent text-sm hover:underline">GitHub</a>
@@ -39,31 +38,53 @@ export default function Home() {
       <div className="mb-7">
         <div className="flex justify-between items-baseline gap-4 flex-wrap">
           <span className="font-semibold text-[0.95rem]">
-            <a href="https://github.com/SpencerReyka" className="text-accent hover:underline">project-one</a>
+            <a href="https://github.com/SpencerReyka/backbone" className="text-accent hover:underline">backbone</a>
           </span>
-          <span className="text-[0.8rem] text-muted whitespace-nowrap">In progress</span>
+          <span className="text-[0.8rem] text-accent whitespace-nowrap">Building</span>
         </div>
-        <p className="text-[0.85rem] text-muted mt-1">Placeholder — something you're currently building.</p>
+        <p className="text-[0.85rem] text-muted mt-1">
+          A typed, durable event bus for my own services — RabbitMQ, Postgres, Protobuf, and a
+          transactional outbox so a crash never silently drops an event. The status above rides on it.
+        </p>
       </div>
 
       <div className="mb-7">
         <div className="flex justify-between items-baseline gap-4 flex-wrap">
           <span className="font-semibold text-[0.95rem]">
-            <a href="https://github.com/SpencerReyka" className="text-accent hover:underline">project-two</a>
+            <a href="https://github.com/SpencerReyka/voice-panel" className="text-accent hover:underline">voice-panel</a>
           </span>
-          <span className="text-[0.8rem] text-muted whitespace-nowrap">2024</span>
+          <span className="text-[0.8rem] text-accent whitespace-nowrap">Running</span>
         </div>
-        <p className="text-[0.85rem] text-muted mt-1">Placeholder — short description of what this does and why it's cool.</p>
+        <p className="text-[0.85rem] text-muted mt-1">
+          A Raspberry Pi appliance showing who is in a Discord voice channel, on a small HDMI
+          panel. Discord bot to WebSocket to a Chromium kiosk, restarting itself for weeks at a time.
+        </p>
       </div>
 
       <div className="mb-7">
         <div className="flex justify-between items-baseline gap-4 flex-wrap">
           <span className="font-semibold text-[0.95rem]">
-            <a href="https://github.com/SpencerReyka" className="text-accent hover:underline">project-three</a>
+            <a href="https://github.com/SpencerReyka/dashcam-uploader" className="text-accent hover:underline">dashcam-uploader</a>
           </span>
-          <span className="text-[0.8rem] text-muted whitespace-nowrap">2023</span>
+          <span className="text-[0.8rem] text-accent whitespace-nowrap">Building</span>
         </div>
-        <p className="text-[0.85rem] text-muted mt-1">Placeholder — short description of what this does and why it's cool.</p>
+        <p className="text-[0.85rem] text-muted mt-1">
+          A resumable uploader for dashcam footage — 248 GB road trips into cold storage
+          without losing the whole transfer to one dropped connection.
+        </p>
+      </div>
+
+      <div className="mb-7">
+        <div className="flex justify-between items-baseline gap-4 flex-wrap">
+          <span className="font-semibold text-[0.95rem]">
+            <a href="https://github.com/SpencerReyka/geo-wrapped" className="text-accent hover:underline">geo-wrapped</a>
+          </span>
+          <span className="text-[0.8rem] text-muted whitespace-nowrap">2026</span>
+        </div>
+        <p className="text-[0.85rem] text-muted mt-1">
+          Self-hosted location history, and an annual &ldquo;where I have been&rdquo; recap. Entirely
+          on infrastructure I run, with nothing exposed to the public internet.
+        </p>
       </div>
 
       {/* Experience */}
@@ -148,8 +169,16 @@ export default function Home() {
         <a href="mailto:spencer.reyka@gmail.com" className="text-accent hover:underline">spencer.reyka@gmail.com</a>
       </p>
 
-      <footer className="mt-20 text-[0.75rem] text-border">
-        <p>Updated February 2026</p>
+      <footer className="mt-20 text-[0.75rem] text-muted flex justify-between gap-4 flex-wrap">
+        <span>Updated September 2026</span>
+        <a
+          href="https://github.com/SpencerReyka/personal-site"
+          target="_blank"
+          rel="noopener"
+          className="hover:text-accent hover:underline"
+        >
+          source
+        </a>
       </footer>
     </>
   )
