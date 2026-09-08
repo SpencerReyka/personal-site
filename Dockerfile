@@ -1,5 +1,9 @@
 # Multi-stage: the build toolchain and devDependencies never reach the runtime image.
-FROM node:lts-slim AS build
+#
+# Pinned to a major rather than `lts`: `node:lts-slim` silently becomes a different major at
+# the next LTS rollover, which turns an unrelated deploy into a runtime upgrade nobody chose.
+# 24 is what `lts` resolves to today, so this is a pin, not a change.
+FROM node:24-slim AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
@@ -9,7 +13,7 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
-FROM node:lts-slim AS runtime
+FROM node:24-slim AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
