@@ -1,9 +1,14 @@
 // Server-side proxy to backbone-api.
 //
-// The browser never calls backbone-api directly. Two reasons: the origin would need CORS and
-// would leak the backbone hostname to every visitor, and a browser fetch cannot be cached at
-// the edge the way this route can. Vercel caches the response for 10s, so a burst of visitors
-// is one request to the VM, not one each.
+// The browser never calls backbone-api directly, and could not: backbone-api publishes no host
+// port and is reachable only by container name on Coolify's docker network. Even if it were
+// exposed, the origin would need CORS and would leak an internal address to every visitor.
+//
+// This route is not cached. It previously claimed "Vercel caches the response for 10s" — this
+// has been on Coolify behind a Cloudflare tunnel since the buildout, and `revalidate = 0` below
+// makes the route dynamic, so Next sends no-store regardless. Each visitor is one request to
+// backbone-api. Fine at this traffic; if it stops being fine the fix is a real cache here, not
+// a comment describing one.
 const BACKBONE_API_URL = process.env.BACKBONE_API_URL
 
 export const revalidate = 0
