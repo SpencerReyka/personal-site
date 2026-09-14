@@ -1,0 +1,45 @@
+name: Weekly security checks
+
+on:
+  schedule:
+    # Mondays, 16:23 UTC (09:23 PDT / 08:23 PST).
+    - cron: '23 16 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  authentication:
+    name: Authentication tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Install locked dependencies without lifecycle scripts
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Verify authentication boundaries
+        run: npm test
+
+  dependencies:
+    name: Production dependency audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      # Audit the committed lockfile against current advisories, even if auth tests fail.
+      # This job needs neither installed packages nor production credentials.
+      - name: Audit locked production dependencies
+        run: npm audit --omit=dev --audit-level=low

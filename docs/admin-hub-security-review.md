@@ -57,10 +57,38 @@ audit of the downstream tools or the entire infrastructure estate.
 
 ## Practical limits
 
-The owner's real Google login and logout still need a browser check. Automated positive
-rendering used test keys locally; it does not claim an end-to-end production Google login.
+The owner confirmed successful production Google login and card loading on 2026-09-14.
+Logout behavior has not yet been verified in the owner's browser.
 
-Signing out of this hub does not sign out Google or the downstream apps. Apps retain their
-own authentication. The existing container health check covers the preview render rather
-than an authenticated hub session. The existing broad host-port binding is unchanged;
-the hub also enforces authentication at the render boundary.
+Correction: Cloudflare documents that the application's `/cdn-cgi/access/logout` endpoint
+revokes the user's Access session across applications, with previously issued tokens no
+longer accepted at the edge after approximately 20–30 seconds. This does not clear Google's
+session or downstream applications' own login cookies. See
+[Cloudflare session management](https://developers.cloudflare.com/cloudflare-one/access-controls/access-settings/session-management/).
+The earlier claim that logout affects only this Access application was incorrect.
+
+The existing container health check covers the preview render rather than an authenticated
+hub session. The existing broad host-port binding is unchanged; the recorded Azure NSG
+blocks Internet ingress but allows VNet traffic. The hub enforces JWT authentication at the
+render boundary, but local signature validation does not consult Cloudflare's revocation
+state. Someone who already has a valid stolen token AND can reach the origin directly could
+replay it until expiration, bypassing edge revocation. Missing/forged-token tests do not cover
+this scenario. Reducing origin reachability is therefore useful defense in depth.
+
+## Follow-ups from review of this review
+
+1. Weekly authentication tests and production dependency auditing are now configured in
+   `.github/workflows/security.yml` (Monday 16:23 UTC, plus manual dispatch). Jobs are
+   independent, use read-only repository permissions, and need no production secrets.
+   Adding build checks on changes and making deployment depend on passing checks remains
+   a separate improvement; a weekly workflow is not a deployment gate.
+2. Restrict port 3210 to the tunnel's local access path where Coolify supports it, or apply an
+   equivalent host firewall restriction. Validate container health and deployment behavior
+   before changing the binding. This limits direct-origin token replay and exposure if the
+   network policy changes; the current evidence does not show anonymous hub access.
+3. Confirm logout in the owner's browser, accounting for Cloudflare's cross-application
+   behavior and separate Google/application sessions.
+
+Optional cleanup: remove unused legacy NextAuth endpoints, dependency, and runtime OAuth
+secrets after confirming the preview has no remaining consumer. They do not authorize the hub
+and are not routed on its hostname. This is attack-surface reduction, not a demonstrated bypass.

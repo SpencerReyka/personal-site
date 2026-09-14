@@ -27,8 +27,9 @@ identifier from the admin Access app, not a secret. The trusted issuer is pinned
 The tunnel routes only `/` and `/_next/` on the admin hostname to this app; other paths
 return 404. Access still protects the whole hostname. Hub HTML is dynamically rendered,
 private/no-store, noindex, and denies framing. Cards are ordinary links; downstream apps
-keep their own authentication. Sign out uses Access's logout endpoint for this application;
-it does not log out other services or the Google account.
+keep their own authentication. Sign out uses Access's logout endpoint, which revokes Access sessions across applications.
+It does not clear the Google session or downstream applications' own login cookies. See
+[Cloudflare session management](https://developers.cloudflare.com/cloudflare-one/access-controls/access-settings/session-management/).
 
 The existing NextAuth endpoints and `auth.ts` remain for the preview application; they
 are not the hub's login mechanism. The public origin's generated Coolify hostname does
@@ -63,3 +64,17 @@ Before changing routing, create the owner-only Access policy and set its runtime
 After deployment, verify anonymous requests redirect to Access, direct-origin requests
 with missing/forged assertions contain no hub content, and a real owner login renders cards.
 The last check requires the owner's browser. Do not weaken Access to automate it.
+
+## Weekly security checks
+
+`.github/workflows/security.yml` runs every Monday at 16:23 UTC (09:23 Pacific daylight
+time / 08:23 Pacific standard time), and can be started manually from GitHub Actions.
+Two independent jobs run the authentication tests on Node 24 and audit the committed
+production dependency lockfile against current npm advisories. Any reported vulnerability
+(low or higher), test failure, or audit retrieval error fails its job. No production
+credentials or deployment permissions are provided, and nothing is automatically upgraded.
+
+Check results in the repository's Actions tab; delivery of failure notifications depends
+on your GitHub Actions notification settings. This weekly check is not a deployment gate
+or a live Google-login test. GitHub can delay schedules and disables scheduled workflows in
+public repositories after 60 days without repository activity; re-enable it if that occurs.
