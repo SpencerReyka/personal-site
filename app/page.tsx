@@ -1,6 +1,17 @@
 import VoiceStatus from './VoiceStatus'
+import AdminHub from './AdminHub'
+import { headers } from 'next/headers'
+import { ADMIN_HOST } from '@/lib/access'
 
-export default function Home() {
+export async function generateMetadata() {
+  if ((await headers()).get('host')?.split(':')[0] === ADMIN_HOST) {
+    return { title: 'Home base · Spencer Reyka', description: 'Personal workspace', robots: { index: false, follow: false } }
+  }
+  return {}
+}
+
+export default async function Home() {
+  if ((await headers()).get('host')?.split(':')[0] === ADMIN_HOST) return <AdminHub />
   return (
     <>
       {/* Intro */}
@@ -171,6 +182,7 @@ export default function Home() {
 
       <footer className="mt-20 text-[0.75rem] text-muted flex justify-between gap-4 flex-wrap">
         <span>Updated September 2026</span>
+        <a href="https://admin.spencerreyka.com" className="hover:text-accent hover:underline">Admin</a>
         <a
           href="https://github.com/SpencerReyka/personal-site"
           target="_blank"

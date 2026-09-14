@@ -1,5 +1,9 @@
-export { auth as middleware } from './auth'
+import { NextResponse } from 'next/server'
 
-export const config = {
-  matcher: ['/admin/:path*'],
+// Legacy admin URLs go to the Access-protected hub; authentication is checked
+// in AdminHub itself and does not depend on this redirect running.
+export function middleware() {
+  return NextResponse.redirect('https://admin.spencerreyka.com')
 }
+
+export const config = { matcher: ['/admin/:path*'] }

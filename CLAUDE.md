@@ -1,74 +1,26 @@
 # personal-site
 
-Spencer Reyka's personal site. Migrated from plain HTML on GitHub Pages to Next.js on Vercel.
+Read README.md for the current deployment and security contract.
 
-## Stack
+- Next.js 15 App Router, React 19, TypeScript, Tailwind CSS v3.
+- Coolify hosts the preview and private admin hub; the apex remains GitHub Pages
+  in the separate SpencerReyka.github.io repository. Vercel instructions are obsolete.
+- `app/page.tsx`: preview homepage, or private hub on the admin hostname.
+- `app/AdminHub.tsx`: launcher; checks the signed Access assertion before rendering.
+- `lib/access.ts`: pinned issuer, admin audience, signature/claims/owner verification.
+- `app/admin/page.tsx` and `middleware.ts`: legacy URL redirects only.
+- `app/api/voice/route.ts`: server-side backbone proxy; `BACKBONE_API_URL` is optional.
+- `app/VoiceStatus.tsx`: polls voice state, hides unknown state.
+- `auth.ts`: legacy NextAuth Google configuration; not used to authenticate the hub.
+- `Dockerfile`: standalone output, Node 24, non-root runtime, in-image health check.
 
-- **Next.js 15** — App Router, TypeScript
-- **Tailwind CSS v3** — utility-first, custom theme vars in tailwind.config.ts
-- **NextAuth.js v5** — Google OAuth, protects /admin
-- **Vercel** — hosting, auto-deploys on push to main
-- **Cloudflare** — DNS only (gray cloud), registrar for spencerreyka.com
+Design colors: background #0f0f0f, foreground #e8e8e8, muted #888,
+accent #a78bfa, border #222. Theme lives in tailwind.config.ts.
 
-## Key files
+Runtime hub configuration: CF_ACCESS_ADMIN_AUD (public application audience).
+Preview's existing variables: AUTH_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
+BACKBONE_API_URL. Never print credentials or put them in client bundles.
 
-- `app/page.tsx` — entire site content (edit this to update the page)
-- `app/admin/page.tsx` — admin dashboard, server-side auth via `auth()`
-- `app/api/ghchart/route.ts` — CORS proxy for github contribution chart
-- `app/api/voice/route.ts` — server-side proxy to backbone-api (keeps the backbone hostname off the client, and lets the platform cache it)
-- `app/VoiceStatus.tsx` — the "Now" section; polls `/api/voice` every 15s
-- `Dockerfile` — multi-stage, `output: 'standalone'`, runs as the non-root `node` user
-- `auth.ts` — Google provider config, email allowlist (spencer.reyka@gmail.com only)
-- `middleware.ts` — protects /admin routes
-
-## Design system
-
-Colors defined in `tailwind.config.ts` and mirrored as CSS vars in `globals.css`:
-- `bg` #0f0f0f — page background
-- `fg` #e8e8e8 — body text
-- `muted` #888 — secondary text, labels
-- `accent` #a78bfa — purple, links
-- `border` #222 — dividers
-
-## Env vars (Vercel dashboard)
-
-```
-AUTH_SECRET           # generate with: npx auth secret
-GOOGLE_CLIENT_ID      # from Google Cloud Console
-GOOGLE_CLIENT_SECRET  # from Google Cloud Console
-BACKBONE_API_URL      # e.g. https://backbone.spencerreyka.com — optional
-```
-
-`BACKBONE_API_URL` is optional. Unset, `/api/voice` reports `known: false` and the badge
-renders nothing, so the site works exactly as before. The badge deliberately distinguishes
-"not in voice" from "cannot tell" and shows nothing for the second — the collector only runs
-part of the day, so a badge that rendered unreachable-as-offline would be confidently wrong
-for hours at a time.
-
-## Local dev
-
-Requires Node.js LTS. First time:
-```bash
-npm install
-npm run dev   # → localhost:3000
-```
-
-## Deploy
-
-Push to `main` → Vercel auto-deploys. No manual step.
-
-## DNS (Cloudflare — DNS only, gray cloud)
-
-```
-A      @    76.76.21.21
-CNAME  www  cname.vercel-dns.com
-```
-
-## Status
-
-- [x] Repo created, code pushed
-- [x] Content ported from index.html
-- [ ] Node.js installed on local machine
-- [ ] Google Cloud Console — OAuth credentials created
-- [ ] Vercel — project imported, env vars added, domain added
-- [ ] Cloudflare DNS — switched from GitHub Pages records to Vercel records
+Run npm test, npm run build, and npm audit --omit=dev for security changes.
+Do not rely on middleware or Host headers as authorization. Missing/invalid tokens
+must not render private content. Never add a production authentication bypass.
