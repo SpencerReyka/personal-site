@@ -20,3 +20,403 @@
   left: 0;
   color: #888;
 }
+
+/* ---------------------------------------------------------------------------------------------
+   OSRS trackers (/osrs, and osrs.spencerreyka.com)
+
+   Two small tables read at a glance, usually alt-tabbed out of a game and often on a phone. Two
+   things carry the whole page: the stream order has to read as a *shape* before you read any
+   letters, and the despawn countdown has to be the loudest number on the stars table.
+
+   Colour is never the only signal. Green and blue streams differ in hue, in lightness (11:1 vs
+   5.7:1 against the page) and in bar height, so the order survives both colour blindness and a
+   washed-out phone screen in daylight.
+
+   The site is dark-only — the root layout hard-codes bg/fg — so this section commits to the same
+   palette rather than half-supporting a light theme that does not exist. Every value is a token
+   below, so retheming is one block to edit.
+   --------------------------------------------------------------------------------------------- */
+
+.osrs {
+  /* Streams. Green is the signal; blue is present and readable, but recessive. */
+  --osrs-green: #4ade80;
+  --osrs-blue: #6c8ebf;
+  /* Text. Explicit colours rather than opacity, so contrast is predictable and a dimmed
+     container cannot drag its children below threshold. */
+  --osrs-fg: #e8e8e8;
+  --osrs-muted: #8f8f8f;   /* 5.9:1 — secondary text */
+  --osrs-warn: #e6a23c;    /* 8.8:1 — "we do not know", never "nothing here" */
+  --osrs-accent: #a78bfa;  /* the site's link colour */
+  --osrs-rule: #232323;
+  --osrs-rule-strong: #333333;
+  --osrs-raised: #161616;
+
+  /* The body already supplies the page gutter and a 4rem top pad. Re-padding here would leave a
+     phone ~270px of usable width, so this only trims the excess height above the header. */
+  margin-top: -2rem;
+  padding: 0 0 3rem;
+}
+
+/* ---- Shell -------------------------------------------------------------------------------- */
+
+.osrs-head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.25rem;
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid var(--osrs-rule);
+}
+
+.osrs-brand {
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-decoration: none;
+  color: var(--osrs-fg);
+}
+.osrs-brand:hover { color: var(--osrs-accent); }
+
+.osrs-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.1rem;
+  font-size: 0.85rem;
+  margin-left: auto;
+}
+.osrs-nav a {
+  text-decoration: none;
+  color: var(--osrs-muted);
+  padding: 0.15rem 0;
+  border-bottom: 1px solid transparent;
+}
+.osrs-nav a:hover { color: var(--osrs-fg); }
+
+/* Current page, without shipping client JS for a pathname. Each page tags its <main>, and :has()
+   reaches back up to the nav. Unsupported browsers simply get no marker. */
+.osrs:has(.is-tog) .osrs-nav a[href="/osrs/tog"],
+.osrs:has(.is-stars) .osrs-nav a[href="/osrs/stars"] {
+  color: var(--osrs-fg);
+  border-bottom-color: var(--osrs-accent);
+}
+
+.osrs-main h1 {
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 1.75rem 0 0.3rem;
+}
+.osrs-lede {
+  margin: 0 0 1.5rem;
+  color: var(--osrs-muted);
+  font-size: 0.875rem;
+  max-width: 34rem;
+}
+
+.osrs-foot {
+  margin-top: 3rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--osrs-rule);
+  font-size: 0.75rem;
+  color: var(--osrs-muted);
+  line-height: 1.6;
+}
+.osrs-foot a { color: var(--osrs-muted); text-decoration: underline; text-underline-offset: 2px; }
+.osrs-foot a:hover { color: var(--osrs-accent); }
+
+/* One visible focus treatment for every interactive thing in the section. */
+.osrs a:focus-visible {
+  outline: 2px solid var(--osrs-accent);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+/* ---- Stream order ------------------------------------------------------------------------ */
+
+/* The one thing that must read instantly.
+   Six baseline-aligned bars: green is tall and bright, blue is short and dim, so `GGGbbb` has a
+   falling-staircase silhouette you can pick out of twenty rows without reading a single letter.
+   Height carries the meaning on its own; hue and lightness are reinforcement. The letters are
+   still there for assistive tech, as visually-hidden text next to the bars. */
+.osrs-order {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 15px;
+  vertical-align: -2px;
+}
+.osrs-order i {
+  display: block;
+  width: 6px;
+  border-radius: 1.5px;
+}
+.osrs-order .g { height: 15px; background: var(--osrs-green); }
+.osrs-order .b { height: 7px;  background: var(--osrs-blue); }
+
+/* Inline in prose ("GGGbbb is the best order there is") the bars need to sit with the text. */
+.osrs-order-inline { height: 12px; gap: 2.5px; vertical-align: -1px; }
+.osrs-order-inline i { width: 5px; }
+.osrs-order-inline .g { height: 12px; }
+.osrs-order-inline .b { height: 6px; }
+
+.osrs-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.1rem;
+  margin: 0.9rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8rem;
+  color: var(--osrs-muted);
+}
+.osrs-key li { display: flex; align-items: flex-end; gap: 0.45rem; }
+.osrs-key span:last-child { line-height: 1; }
+
+/* ---- Tables ------------------------------------------------------------------------------ */
+
+.osrs-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.925rem;
+  font-variant-numeric: tabular-nums;
+}
+.osrs-table thead th {
+  text-align: left;
+  font-weight: 500;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--osrs-muted);
+  padding: 0 0.5rem 0.5rem 0;
+  border-bottom: 1px solid var(--osrs-rule-strong);
+  white-space: nowrap;
+}
+.osrs-table td,
+.osrs-table tbody th {
+  padding: 0.55rem 0.5rem 0.55rem 0;
+  border-top: 1px solid var(--osrs-rule);
+  text-align: left;
+  font-weight: 400;
+  vertical-align: middle;
+}
+.osrs-table tbody tr:first-child td,
+.osrs-table tbody tr:first-child th { border-top: 0; }
+.osrs-table th:last-child,
+.osrs-table td:last-child { padding-right: 0; }
+
+/* Numbers compare down the column, so they right-align and share a width. Qualified past the
+   generic cell rule — an unqualified `.osrs-num` loses to `.osrs-table td` on specificity and
+   silently left-aligns the values under a right-aligned header. */
+.osrs-table td.osrs-num,
+.osrs-table th.osrs-num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Column widths are hinted rather than left to content, so the stream order lands in the same
+   place on every visit and the eye can go straight to it. */
+.osrs-table--tog th:nth-child(1) { width: 24%; }
+.osrs-table--tog th:nth-child(2) { width: 16%; }
+/* Keeps the hop count off the first bar — they sit adjacent and a right-aligned number running
+   into the glyph reads as part of it. */
+.osrs-table--tog td:nth-child(2),
+.osrs-table--tog th:nth-child(2) { padding-right: 1.1rem; }
+.osrs-table--tog th:nth-child(3) { width: 34%; }
+.osrs-table--tog th:nth-child(4) { width: 26%; }
+.osrs-table--stars th:nth-child(1) { width: 18%; }
+.osrs-table--stars th:nth-child(2) { width: 14%; }
+.osrs-table--stars th:nth-child(4) { width: 26%; }
+
+.osrs-world { font-variant-numeric: tabular-nums; color: var(--osrs-fg); white-space: nowrap; }
+
+/* Your own world. Marked three ways — weight, an accent rule, and the literal word "you" — so it
+   is findable without relying on the tint. */
+.osrs-table tr.is-home th,
+.osrs-table tr.is-home td { background: rgba(167, 139, 250, 0.07); }
+.osrs-table tr.is-home .osrs-world {
+  font-weight: 700;
+  box-shadow: inset 2px 0 0 var(--osrs-accent);
+  padding-left: 0.5rem;
+}
+.osrs-tag {
+  margin-left: 0.4rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--osrs-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.osrs-tier {
+  display: inline-block;
+  min-width: 2.1rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--osrs-muted);
+  padding: 0.1rem 0.3rem;
+  border: 1px solid var(--osrs-rule-strong);
+  border-radius: 999px;
+}
+
+/* Second-most-important number on the site, so it gets size and weight rather than a tint. */
+.osrs-left {
+  font-variant-numeric: tabular-nums;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--osrs-fg);
+  white-space: nowrap;
+}
+.osrs-place { color: var(--osrs-fg); }
+
+/* Present but unverified — never invented. */
+.osrs-thin { color: var(--osrs-muted); font-weight: 400; font-size: 0.875rem; }
+.osrs-flag { color: var(--osrs-warn); font-weight: 600; }
+
+.osrs-note {
+  font-size: 0.8rem;
+  color: var(--osrs-muted);
+  margin: 1rem 0 0;
+  max-width: 36rem;
+  line-height: 1.6;
+}
+.osrs-note code {
+  font-size: 0.925em;
+  padding: 0.05rem 0.3rem;
+  border: 1px solid var(--osrs-rule-strong);
+  border-radius: 0.25rem;
+}
+.osrs-note strong { color: var(--osrs-fg); font-weight: 600; }
+
+/* ---- States ------------------------------------------------------------------------------ */
+
+/* "Nothing live" and "upstream unreachable" are different answers and must not be mistaken for
+   each other. Empty is a calm, dashed, correct result; unreachable is a solid amber-ruled panel.
+   Each carries an eyebrow word, so the difference survives in greyscale. */
+.osrs-state {
+  border: 1px dashed var(--osrs-rule-strong);
+  border-radius: 0.5rem;
+  background: var(--osrs-raised);
+  padding: 1.5rem 1.25rem;
+  margin: 0;
+}
+.osrs-state-eyebrow {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--osrs-muted);
+  margin-bottom: 0.5rem;
+}
+.osrs-state-line {
+  display: block;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--osrs-fg);
+}
+.osrs-state .osrs-note { margin-top: 0.6rem; }
+
+.osrs-state.is-down {
+  border-style: solid;
+  border-color: var(--osrs-rule-strong);
+  border-left: 3px solid var(--osrs-warn);
+}
+.osrs-state.is-down .osrs-state-eyebrow { color: var(--osrs-warn); }
+
+.osrs-where {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.85rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.osrs-where li {
+  font-size: 0.75rem;
+  color: var(--osrs-muted);
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--osrs-rule-strong);
+  border-radius: 999px;
+}
+
+/* ---- Hub cards --------------------------------------------------------------------------- */
+
+.osrs-cards {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: 1fr 1fr;
+  align-items: stretch;
+  margin-top: 1.25rem;
+}
+.osrs-card {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  background: var(--osrs-raised);
+  border: 1px solid var(--osrs-rule);
+  border-radius: 0.5rem;
+  padding: 1rem 1.1rem 0.9rem;
+}
+.osrs-card:hover { border-color: var(--osrs-accent); background: #191722; }
+.osrs-card h2 {
+  font-size: 0.68rem;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--osrs-muted);
+  font-weight: 600;
+}
+
+/* The headline figure. Pinned apart from the footer line so both cards agree on baselines even
+   when one of them has nothing to show. */
+.osrs-figure {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0.7rem 0 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  min-height: 2rem;
+}
+.osrs-figure strong { font-weight: 600; }
+.osrs-figure .osrs-tier { font-size: 0.8rem; }
+.osrs-none { color: var(--osrs-muted); font-size: 1.05rem; font-weight: 500; }
+.osrs-down { color: var(--osrs-warn); font-size: 1.05rem; font-weight: 500; }
+.osrs-sub {
+  margin: 0.45rem 0 0;
+  padding-top: 0.55rem;
+  border-top: 1px solid var(--osrs-rule);
+  font-size: 0.78rem;
+  color: var(--osrs-muted);
+  margin-top: auto;
+}
+
+/* ---- Small screens ----------------------------------------------------------------------- */
+
+@media (max-width: 34rem) {
+  .osrs-cards { grid-template-columns: 1fr; }
+  .osrs-nav { margin-left: 0; width: 100%; gap: 0 1rem; }
+  .osrs-table { font-size: 0.875rem; }
+  .osrs-table thead th { font-size: 0.65rem; white-space: normal; }
+  /* Location is the only cell that can be long, so it is the only one allowed to wrap. */
+  .osrs-place { white-space: normal; }
+  .osrs-main h1 { margin-top: 1.25rem; }
+}
+
+/* ---- Visually hidden --------------------------------------------------------------------- */
+
+/* Table captions and the letter form of each stream order: present for assistive tech, absent
+   from the visual design. */
+.osrs-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
