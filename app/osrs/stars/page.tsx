@@ -87,6 +87,10 @@ export default async function StarsPage() {
             </tbody>
           </table>
           <p className="osrs-note">
+            Cached up to 30 seconds — short, because a star lives about two hours and the useful
+            signal is the tail of it.
+          </p>
+          <p className="osrs-note">
             A star with no reported window shows <em>unknown</em> rather than an invented
             countdown — the caller did not say, which is not the same as it being gone.
           </p>

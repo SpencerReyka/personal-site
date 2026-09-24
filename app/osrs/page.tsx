@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { fetchTog, fetchStars } from '@/lib/osrs-data'
 import { HOME_WORLD, WATCHED_LOCATIONS } from '@/lib/osrs'
+import { StreamOrder } from '@/app/osrs/StreamOrder'
 
 export const dynamic = 'force-dynamic'
 
@@ -32,19 +33,6 @@ const left = (s: number) => {
  * fields from `layout.tsx`/`page.tsx`, and a section this small does not earn a components
  * directory of its own.
  */
-function StreamOrder({ order, inline = false }: { order: string; inline?: boolean }) {
-  return (
-    <>
-      <span className={inline ? 'osrs-order osrs-order-inline' : 'osrs-order'} aria-hidden="true">
-        {[...order].map((c, i) => (
-          <i key={i} className={c === 'g' ? 'g' : 'b'} />
-        ))}
-      </span>
-      <span className="osrs-sr">{[...order].map((c) => (c === 'g' ? 'green' : 'blue')).join(' ')}</span>
-    </>
-  )
-}
-
 export default async function OsrsIndex() {
   const [worlds, stars] = await Promise.all([fetchTog(), fetchStars()])
   const best = worlds?.[0] ?? null

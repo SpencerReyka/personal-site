@@ -1,5 +1,6 @@
 import { fetchTog } from '@/lib/osrs-data'
 import { HOME_WORLD, CONFIDENT_HITS } from '@/lib/osrs'
+import { StreamOrder } from '@/app/osrs/StreamOrder'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Tears of Guthix — world order' }
@@ -20,27 +21,25 @@ export const metadata = { title: 'Tears of Guthix — world order' }
  * fields from `layout.tsx`/`page.tsx`, and a section this small does not earn a components
  * directory of its own.
  */
-function StreamOrder({ order, inline = false }: { order: string; inline?: boolean }) {
-  return (
-    <>
-      <span className={inline ? 'osrs-order osrs-order-inline' : 'osrs-order'} aria-hidden="true">
-        {[...order].map((c, i) => (
-          <i key={i} className={c === 'g' ? 'g' : 'b'} />
-        ))}
-      </span>
-      <span className="osrs-sr">{[...order].map((c) => (c === 'g' ? 'green' : 'blue')).join(' ')}</span>
-    </>
-  )
-}
-
 export default async function TogPage() {
   const worlds = await fetchTog()
+
+  // When many worlds share the best order the glyph column goes uniform, and the page looks like
+  // it is showing one answer twenty times. It is not — those are the twenty *nearest* worlds that
+  // all happen to be optimal, so the real decision is the hop count. Saying how many share the
+  // top score turns a flat-looking column into information.
+  const best = worlds?.[0]
+  const sharingBest = best ? worlds!.filter((w) => w.score === best.score).length : 0
 
   return (
     <main className="osrs-main is-tog">
       <h1>Tears of Guthix</h1>
       <p className="osrs-lede">
         Best stream order first, nearest world to {HOME_WORLD} breaking the tie.
+        {sharingBest > 1 && (
+          <> <strong>{sharingBest}</strong> worlds share the best order, so below the fold the
+          only thing separating them is the hop count.</>
+        )}
       </p>
 
       {worlds === null ? (
