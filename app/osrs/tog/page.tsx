@@ -111,6 +111,11 @@ export default async function TogPage() {
             <StreamOrder order="gggbbb" inline /> is the best order there is.
           </p>
           <p className="osrs-note">
+            Cached up to 5 minutes. Stream orders change only when Jagex rolls them, so this is
+            far finer than the data moves — and it is a bound rather than an age because the page
+            renders per request while the fetch beneath it does not.
+          </p>
+          <p className="osrs-note">
             <span className="osrs-flag">?</span> marks fewer than {CONFIDENT_HITS} reports. Still
             listed, because a perfect order with one report is worth seeing — just worth knowing
             it is one person&rsquo;s word.
