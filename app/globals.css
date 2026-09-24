@@ -20,3 +20,83 @@
   left: 0;
   color: #888;
 }
+
+/* ---------------------------------------------------------------------------------------------
+   OSRS trackers (/osrs, and osrs.spencerreyka.com)
+
+   Deliberately plain: these are two small tables read at a glance while alt-tabbed out of a
+   game. Legibility of the stream order and the countdown is the whole job.
+   --------------------------------------------------------------------------------------------- */
+
+.osrs {
+  --osrs-green: #4ade80;
+  --osrs-dim: rgba(128, 128, 128, 0.55);
+  --osrs-rule: rgba(128, 128, 128, 0.22);
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 3rem;
+}
+
+.osrs-head {
+  display: flex;
+  align-items: baseline;
+  gap: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--osrs-rule);
+}
+.osrs-brand { font-weight: 700; letter-spacing: 0.08em; text-decoration: none; }
+.osrs-nav { display: flex; gap: 1rem; font-size: 0.9rem; }
+.osrs-nav a { text-decoration: none; opacity: 0.7; }
+.osrs-nav a:hover { opacity: 1; }
+
+.osrs-main h1 { font-size: 1.4rem; margin: 1.5rem 0 0.25rem; }
+.osrs-lede { margin: 0 0 1.25rem; opacity: 0.7; font-size: 0.9rem; }
+
+.osrs-table { width: 100%; border-collapse: collapse; font-size: 0.925rem; }
+.osrs-table th {
+  text-align: left; font-weight: 500; font-size: 0.78rem;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  opacity: 0.55; padding-bottom: 0.4rem;
+}
+.osrs-table td { padding: 0.45rem 0; border-top: 1px solid var(--osrs-rule); }
+.osrs-table tr.is-home td { font-weight: 600; }
+
+.osrs-world { font-variant-numeric: tabular-nums; }
+.osrs-tag {
+  margin-left: 0.4rem; font-size: 0.7rem; font-weight: 500;
+  opacity: 0.55; text-transform: uppercase; letter-spacing: 0.05em;
+}
+
+/* The one thing that must read instantly. Green is the signal; blue is deliberately recessive
+   so the shape of the order is visible without reading the letters. */
+.osrs-order { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: 0.22em; }
+.osrs-order .g { color: var(--osrs-green); font-weight: 700; }
+.osrs-order .b { opacity: 0.3; }
+
+.osrs-tier {
+  font-variant-numeric: tabular-nums; font-size: 0.8rem;
+  padding: 0.05rem 0.35rem; border: 1px solid var(--osrs-rule); border-radius: 0.25rem;
+}
+.osrs-thin { opacity: 0.5; }
+
+.osrs-note { font-size: 0.8rem; opacity: 0.6; margin: 0.75rem 0 0; }
+.osrs-unknown, .osrs-empty { opacity: 0.7; font-size: 0.9rem; }
+.osrs-empty .osrs-note { display: block; margin-top: 0.5rem; }
+
+.osrs-cards { display: grid; gap: 0.75rem; grid-template-columns: 1fr 1fr; margin-top: 1.25rem; }
+@media (max-width: 34rem) { .osrs-cards { grid-template-columns: 1fr; } }
+.osrs-card {
+  display: block; text-decoration: none; color: inherit;
+  border: 1px solid var(--osrs-rule); border-radius: 0.5rem; padding: 0.9rem 1rem;
+}
+.osrs-card:hover { border-color: var(--osrs-dim); }
+.osrs-card h2 { font-size: 0.8rem; margin: 0; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.6; font-weight: 500; }
+.osrs-figure { display: flex; align-items: baseline; gap: 0.6rem; margin: 0.45rem 0 0.2rem; font-size: 1.35rem; }
+.osrs-figure .osrs-order { font-size: 0.95rem; }
+.osrs-none { opacity: 0.45; font-size: 1rem; }
+.osrs-sub { margin: 0; font-size: 0.8rem; opacity: 0.6; }
+
+.osrs-foot {
+  margin-top: 2.5rem; padding-top: 0.9rem; border-top: 1px solid var(--osrs-rule);
+  font-size: 0.78rem; opacity: 0.55; line-height: 1.5;
+}
