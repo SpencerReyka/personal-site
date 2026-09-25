@@ -1,0 +1,78 @@
+name: Deploy to Coolify
+
+# Coolify's "deploy on push" is enabled for this app but cannot fire. The app is configured as a
+# public-repository source (`source_id: 0`, an HTTPS repo string rather than `git@`), which
+# Coolify clones anonymously — so there is no GitHub App and no repo webhook to deliver a push
+# event. The setting is on; nothing is wired to it. This workflow is that wire.
+#
+# Note what that implies: making this repository private would break the deployment outright
+# until Coolify is given a deploy key for it.
+
+on:
+  # main only, and deliberately no `pull_request`. This job reads a Coolify API token, and a
+  # fork's PR must never be able to reach it. GitHub already withholds secrets from fork PRs;
+  # not offering the trigger at all means not relying on that.
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  # Two deploys of the same app racing each other produces a build from whichever finished last,
+  # which is not necessarily the newest commit.
+  group: coolify-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Trigger the deployment and wait for a terminal status
+        shell: bash
+        env:
+          COOLIFY_URL: ${{ secrets.COOLIFY_URL }}
+          COOLIFY_API_TOKEN: ${{ secrets.COOLIFY_API_TOKEN }}
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+          APP_UUID: ${{ secrets.COOLIFY_PERSONAL_SITE_APP_UUID }}
+        run: |
+          set -euo pipefail
+
+          for v in COOLIFY_URL COOLIFY_API_TOKEN APP_UUID; do
+            if [ -z "${!v}" ]; then
+              echo "::error::$v is not set. This job cannot deploy and will not pretend it did."
+              exit 1
+            fi
+          done
+
+          api="${COOLIFY_URL%/}/api/v1"
+          auth=(-H "Authorization: Bearer ${COOLIFY_API_TOKEN}"
+                -H "CF-Access-Client-Id: ${CF_ACCESS_CLIENT_ID}"
+                -H "CF-Access-Client-Secret: ${CF_ACCESS_CLIENT_SECRET}"
+                -H "Accept: application/json")
+
+          echo "Requesting deployment of ${APP_UUID}"
+          res="$(curl -fsS -X POST "${auth[@]}" "${api}/deploy?uuid=${APP_UUID}&force=true")"
+          echo "$res"
+
+          dep="$(printf '%s' "$res" | python3 -c 'import sys,json;print(json.load(sys.stdin)["deployments"][0]["deployment_uuid"])')"
+          [ -n "$dep" ] || { echo "::error::No deployment uuid returned."; exit 1; }
+
+          # Coolify answers "queued" and returns immediately. That 200 says the request was
+          # accepted, not that anything built — treating it as success is how a rolled-back
+          # deploy sits green for hours while the old image keeps serving. So poll.
+          for _ in $(seq 1 60); do
+            sleep 10
+            status="$(curl -fsS "${auth[@]}" "${api}/deployments/${dep}" \
+              | python3 -c 'import sys,json;print(json.load(sys.stdin).get("status","unknown"))')"
+            echo "  status: ${status}"
+            case "$status" in
+              finished)  echo "Deployment finished."; exit 0 ;;
+              failed|cancelled-by-user)
+                echo "::error::Deployment ${status}. See Coolify for the build log."; exit 1 ;;
+            esac
+          done
+
+          echo "::error::Deployment did not reach a terminal status within 10 minutes."
+          exit 1
