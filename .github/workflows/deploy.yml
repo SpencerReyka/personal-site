@@ -51,9 +51,11 @@ jobs:
                 -H "CF-Access-Client-Id: ${CF_ACCESS_CLIENT_ID}"
                 -H "CF-Access-Client-Secret: ${CF_ACCESS_CLIENT_SECRET}"
                 -H "Accept: application/json")
+          retry=(--fail --silent --show-error --retry 5 --retry-delay 3
+                 --retry-max-time 60 --retry-all-errors)
 
           echo "Requesting deployment of ${APP_UUID}"
-          res="$(curl -fsS -X POST "${auth[@]}" "${api}/deploy?uuid=${APP_UUID}&force=true")"
+          res="$(curl "${retry[@]}" -X POST "${auth[@]}" "${api}/deploy?uuid=${APP_UUID}&force=true")"
           echo "$res"
 
           dep="$(printf '%s' "$res" | python3 -c 'import sys,json;print(json.load(sys.stdin)["deployments"][0]["deployment_uuid"])')"
@@ -64,7 +66,7 @@ jobs:
           # deploy sits green for hours while the old image keeps serving. So poll.
           for _ in $(seq 1 60); do
             sleep 10
-            status="$(curl -fsS "${auth[@]}" "${api}/deployments/${dep}" \
+            status="$(curl "${retry[@]}" "${auth[@]}" "${api}/deployments/${dep}" \
               | python3 -c 'import sys,json;print(json.load(sys.stdin).get("status","unknown"))')"
             echo "  status: ${status}"
             case "$status" in
