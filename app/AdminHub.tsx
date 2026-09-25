@@ -8,6 +8,7 @@ const groups = [
     links: [
       { name: 'Location history', href: 'https://geo.spencerreyka.com', description: 'Maps, trips, and places you’ve been.', icon: '↗' },
       { name: 'Tasks', href: 'https://todo.spencerreyka.com', description: 'Projects, plans, and what’s next.', icon: '✓' },
+      { name: 'Riot analysis', href: 'https://riot.spencerreyka.com/dashboard/', description: 'ARAM damage analysis and Riot API settings.', icon: '⚔' },
     ],
   },
   {
@@ -58,7 +59,8 @@ export default async function AdminHub() {
         <div className="flex flex-wrap gap-x-5 gap-y-3 text-sm">
           {[
             ['Notes', 'notes'], ['Backbone', 'backbone'], ['Voice Panel', 'voice-panel'],
-            ['Geo Wrapped', 'geo-wrapped'], ['Personal Site', 'personal-site'], ['Infrastructure', 'infra'],
+            ['Geo Wrapped', 'geo-wrapped'], ['Riot Analysis', 'riot-api-match-analysis'],
+            ['Personal Site', 'personal-site'], ['Infrastructure', 'infra'],
           ].map(([name, repo]) => (
             <a key={repo} href={`https://github.com/SpencerReyka/${repo}`} className="text-muted hover:text-accent hover:underline">{name}</a>
           ))}
